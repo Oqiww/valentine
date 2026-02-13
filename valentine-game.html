@@ -39,6 +39,102 @@
             position: relative;
         }
 
+        /* Password Screen */
+        #passwordScreen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1001;
+        }
+
+        #passwordScreen.hidden {
+            display: none;
+        }
+
+        .password-container {
+            background: rgba(0, 0, 0, 0.8);
+            border: 5px solid #ffd700;
+            border-radius: 10px;
+            padding: 50px;
+            text-align: center;
+            box-shadow: 0 0 30px rgba(255, 215, 0, 0.5);
+            max-width: 500px;
+            width: 90%;
+        }
+
+        .password-title {
+            font-family: 'Press Start 2P', cursive;
+            font-size: 24px;
+            color: #ffd700;
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 0 #e52521;
+        }
+
+        .password-subtitle {
+            font-family: 'Poppins', sans-serif;
+            font-size: 16px;
+            color: #fff;
+            margin-bottom: 30px;
+        }
+
+        .password-input {
+            width: 100%;
+            padding: 15px;
+            font-size: 24px;
+            font-family: 'Press Start 2P', cursive;
+            text-align: center;
+            border: 3px solid #ffd700;
+            border-radius: 5px;
+            background: #000;
+            color: #ffd700;
+            margin-bottom: 20px;
+            letter-spacing: 10px;
+        }
+
+        .password-input:focus {
+            outline: none;
+            border-color: #fff;
+            box-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+        }
+
+        .password-btn {
+            background: #e52521;
+            color: white;
+            border: 3px solid #000;
+            padding: 15px 40px;
+            border-radius: 5px;
+            font-family: 'Press Start 2P', cursive;
+            font-size: 16px;
+            cursor: pointer;
+            box-shadow: 0 5px 0 #8b1a1a;
+            transition: all 0.1s ease;
+            width: 100%;
+        }
+
+        .password-btn:hover {
+            transform: translateY(2px);
+            box-shadow: 0 3px 0 #8b1a1a;
+        }
+
+        .password-btn:active {
+            transform: translateY(5px);
+            box-shadow: 0 0 0 #8b1a1a;
+        }
+
+        .password-error {
+            color: #ff4444;
+            font-family: 'Press Start 2P', cursive;
+            font-size: 12px;
+            margin-top: 15px;
+            min-height: 20px;
+        }
+
         /* Loading Screen */
         #loadingScreen {
             position: fixed;
@@ -287,6 +383,22 @@
             box-shadow: 0 5px 0 #2c54bc;
         }
 
+        @keyframes shake {
+
+            0%,
+            100% {
+                transform: translateX(0);
+            }
+
+            25% {
+                transform: translateX(-10px);
+            }
+
+            75% {
+                transform: translateX(10px);
+            }
+        }
+
         .restart-btn:hover {
             transform: translateY(2px);
             box-shadow: 0 3px 0 #2c54bc;
@@ -295,8 +407,20 @@
 </head>
 
 <body>
+    <!-- Password Screen -->
+    <div id="passwordScreen">
+        <div class="password-container">
+            <h1 class="password-title">🎮 VALENTINE'S GAME 🎮</h1>
+            <p class="password-subtitle">Halo! Untuk mulai main, masukkan password dulu</p>
+            <input type="password" id="passwordInput" class="password-input" placeholder="Masukkan Password"
+                maxlength="4">
+            <button onclick="checkPassword()" class="password-btn">ENTER</button>
+            <div id="passwordError" class="password-error"></div>
+        </div>
+    </div>
+
     <!-- Loading Screen -->
-    <div id="loadingScreen">
+    <div id="loadingScreen" style="display: none;">
         <div class="loading-text">LOADING...</div>
     </div>
 
@@ -390,7 +514,9 @@
             speed: 5,
             jumpPower: 13,
             onGround: false,
-            direction: 1 // 1 = right, -1 = left
+            direction: 1, // 1 = right, -1 = left
+            walkFrame: 0,
+            walkTimer: 0
         };
 
         // Platforms
@@ -402,9 +528,9 @@
         const doors = [
             { x: 400, y: canvas.height - 200, width: 100, height: 120, year: 2021, unlocked: false },
             { x: 850, y: canvas.height - 200, width: 100, height: 120, year: 2022, unlocked: false },
-            { x: 1300, y: canvas.height - 300, width: 100, height: 120, year: 2023, unlocked: false },
+            { x: 1300, y: canvas.height - 360, width: 100, height: 120, year: 2023, unlocked: false },
             { x: 1750, y: canvas.height - 200, width: 100, height: 120, year: 2024, unlocked: false },
-            { x: 2200, y: canvas.height - 300, width: 100, height: 120, year: 2025, unlocked: false },
+            { x: 2200, y: canvas.height - 360, width: 100, height: 120, year: 2025, unlocked: false },
             { x: 2650, y: canvas.height - 200, width: 100, height: 120, year: 2026, unlocked: false }
         ];
 
@@ -448,6 +574,43 @@
 
         images.background.onload = imageLoadHandler;
         images.player.onload = imageLoadHandler;
+
+        // Password Check Function
+        function checkPassword() {
+            const input = document.getElementById('passwordInput');
+            const error = document.getElementById('passwordError');
+            const passwordScreen = document.getElementById('passwordScreen');
+            const loadingScreen = document.getElementById('loadingScreen');
+
+            if (input.value === '2812') {
+                passwordScreen.classList.add('hidden');
+                loadingScreen.style.display = 'flex';
+                error.textContent = '';
+            } else {
+                error.textContent = 'PASSWORD SALAH!';
+                input.value = '';
+                input.focus();
+
+                // Shake animation
+                input.style.animation = 'shake 0.5s';
+                setTimeout(() => {
+                    input.style.animation = '';
+                }, 500);
+            }
+        }
+
+        // Enter key support for password
+        document.addEventListener('DOMContentLoaded', () => {
+            const passwordInput = document.getElementById('passwordInput');
+            if (passwordInput) {
+                passwordInput.focus();
+                passwordInput.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') {
+                        checkPassword();
+                    }
+                });
+            }
+        });
 
         // Set image sources
         images.background.src = 'mario_background_1770996119802.png';
@@ -562,11 +725,21 @@
             if (game.keys['ArrowLeft'] || game.keys['a'] || joystickDirection.x < -0.3) {
                 player.velocityX = -player.speed;
                 player.direction = -1;
+                player.walkTimer++;
             } else if (game.keys['ArrowRight'] || game.keys['d'] || joystickDirection.x > 0.3) {
                 player.velocityX = player.speed;
                 player.direction = 1;
+                player.walkTimer++;
             } else {
                 player.velocityX *= game.friction;
+                player.walkTimer = 0;
+                player.walkFrame = 0;
+            }
+
+            // Update walk animation
+            if (player.walkTimer > 8) {
+                player.walkFrame = (player.walkFrame + 1) % 2;
+                player.walkTimer = 0;
             }
 
             // Apply gravity
@@ -714,12 +887,6 @@
                 ctx.arc(door.x + door.width - 30, door.y + door.height / 2, 6, 0, Math.PI * 2);
                 ctx.fill();
 
-                // Year text
-                ctx.fillStyle = '#fff';
-                ctx.font = 'bold 20px Press Start 2P';
-                ctx.textAlign = 'center';
-                ctx.fillText(door.year.toString(), door.x + door.width / 2, door.y + door.height / 2);
-
                 // Unlocked indicator
                 if (door.unlocked) {
                     ctx.fillStyle = '#ffd700';
@@ -779,11 +946,16 @@
             // Draw player (Mario character)
             if (images.player.complete) {
                 ctx.save();
+
+                // Walking animation - slight bounce
+                const bounceOffset = Math.abs(player.velocityX) > 0.5 && player.onGround ?
+                    Math.sin(player.walkFrame * Math.PI) * 3 : 0;
+
                 if (player.direction === -1) {
                     ctx.scale(-1, 1);
-                    ctx.drawImage(images.player, -player.x - player.width, player.y, player.width, player.height);
+                    ctx.drawImage(images.player, -player.x - player.width, player.y - bounceOffset, player.width, player.height);
                 } else {
-                    ctx.drawImage(images.player, player.x, player.y, player.width, player.height);
+                    ctx.drawImage(images.player, player.x, player.y - bounceOffset, player.width, player.height);
                 }
                 ctx.restore();
             } else {
