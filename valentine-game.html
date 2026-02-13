@@ -284,7 +284,7 @@
             text-align: center;
         }
 
-        /* Mobile Controls - ALWAYS VISIBLE ON TOUCH DEVICES */
+        /* Mobile Controls */
         .mobile-controls {
             display: flex;
             position: fixed;
@@ -349,6 +349,12 @@
             #controlsInfo {
                 font-size: 8px;
                 padding: 10px 20px;
+            }
+        }
+
+        @media (min-width: 1024px) {
+            .mobile-controls {
+                display: none;
             }
         }
 
