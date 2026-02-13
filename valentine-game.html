@@ -1,0 +1,820 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>🎮 Valentine's Journey 2021-2026</title>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Poppins:wght@400;600&display=swap"
+        rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            overflow: hidden;
+            background: #5c94fc;
+            touch-action: none;
+        }
+
+        #gameCanvas {
+            display: block;
+            background: #5c94fc;
+            box-shadow: 0 10px 50px rgba(0, 0, 0, 0.3);
+            border: 5px solid #000;
+            image-rendering: pixelated;
+            image-rendering: crisp-edges;
+        }
+
+        .container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+            position: relative;
+        }
+
+        /* Loading Screen */
+        #loadingScreen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #000;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            transition: opacity 0.5s ease;
+        }
+
+        #loadingScreen.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .loading-text {
+            font-family: 'Press Start 2P', cursive;
+            font-size: 24px;
+            color: #fff;
+            margin-top: 20px;
+            animation: blink 1s infinite;
+        }
+
+        @keyframes blink {
+
+            0%,
+            50% {
+                opacity: 1;
+            }
+
+            51%,
+            100% {
+                opacity: 0;
+            }
+        }
+
+        /* Message Modal */
+        #messageModal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            z-index: 999;
+            justify-content: center;
+            align-items: center;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+
+        .modal-content {
+            background: #fff;
+            padding: 40px;
+            border-radius: 10px;
+            max-width: 600px;
+            width: 90%;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.8);
+            border: 5px solid #000;
+            position: relative;
+            animation: slideUp 0.5s ease;
+        }
+
+        @keyframes slideUp {
+            from {
+                transform: translateY(50px);
+                opacity: 0;
+            }
+
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .modal-year {
+            font-family: 'Press Start 2P', cursive;
+            font-size: 32px;
+            color: #e52521;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .modal-message {
+            font-size: 18px;
+            line-height: 1.8;
+            color: #333;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .close-btn {
+            background: #e52521;
+            color: white;
+            border: 3px solid #000;
+            padding: 15px 40px;
+            border-radius: 5px;
+            font-family: 'Press Start 2P', cursive;
+            font-size: 14px;
+            cursor: pointer;
+            display: block;
+            margin: 0 auto;
+            box-shadow: 0 5px 0 #8b1a1a;
+            transition: all 0.1s ease;
+        }
+
+        .close-btn:hover {
+            transform: translateY(2px);
+            box-shadow: 0 3px 0 #8b1a1a;
+        }
+
+        .close-btn:active {
+            transform: translateY(5px);
+            box-shadow: 0 0 0 #8b1a1a;
+        }
+
+        /* Controls Info */
+        #controlsInfo {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.8);
+            padding: 15px 30px;
+            border-radius: 5px;
+            border: 3px solid #fff;
+            z-index: 100;
+            font-family: 'Press Start 2P', cursive;
+            font-size: 10px;
+            color: #fff;
+            text-align: center;
+        }
+
+        /* Mobile Controls */
+        .mobile-controls {
+            display: none;
+            position: fixed;
+            bottom: 30px;
+            width: 100%;
+            justify-content: space-between;
+            padding: 0 30px;
+            z-index: 100;
+        }
+
+        .joystick {
+            width: 120px;
+            height: 120px;
+            background: rgba(0, 0, 0, 0.5);
+            border: 3px solid #fff;
+            border-radius: 50%;
+            position: relative;
+        }
+
+        .joystick-inner {
+            width: 50px;
+            height: 50px;
+            background: #e52521;
+            border: 3px solid #fff;
+            border-radius: 50%;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        .jump-btn {
+            width: 100px;
+            height: 100px;
+            background: #ffd700;
+            border: 3px solid #000;
+            border-radius: 50%;
+            color: #000;
+            font-family: 'Press Start 2P', cursive;
+            font-size: 12px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 0 5px 0 #b8860b;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .jump-btn:active {
+            transform: translateY(5px);
+            box-shadow: 0 0 0 #b8860b;
+        }
+
+        @media (max-width: 768px) {
+            .mobile-controls {
+                display: flex;
+            }
+
+            #controlsInfo {
+                font-size: 8px;
+                padding: 10px 20px;
+            }
+        }
+
+        /* Game Over Screen */
+        #gameOverScreen {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            z-index: 998;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+        }
+
+        .game-over-text {
+            font-family: 'Press Start 2P', cursive;
+            font-size: 36px;
+            color: #e52521;
+            margin-bottom: 20px;
+        }
+
+        .restart-btn {
+            background: #5c94fc;
+            color: white;
+            border: 3px solid #000;
+            padding: 15px 40px;
+            border-radius: 5px;
+            font-family: 'Press Start 2P', cursive;
+            font-size: 14px;
+            cursor: pointer;
+            box-shadow: 0 5px 0 #2c54bc;
+        }
+
+        .restart-btn:hover {
+            transform: translateY(2px);
+            box-shadow: 0 3px 0 #2c54bc;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Loading Screen -->
+    <div id="loadingScreen">
+        <div class="loading-text">LOADING...</div>
+    </div>
+
+    <!-- Controls Info -->
+    <div id="controlsInfo">
+        ARROWS/WASD: MOVE | SPACE: JUMP
+    </div>
+
+    <!-- Game Container -->
+    <div class="container">
+        <canvas id="gameCanvas"></canvas>
+    </div>
+
+    <!-- Mobile Controls -->
+    <div class="mobile-controls">
+        <div class="joystick" id="joystick">
+            <div class="joystick-inner" id="joystickInner"></div>
+        </div>
+        <div class="jump-btn" id="jumpBtn">JUMP</div>
+    </div>
+
+    <!-- Message Modal -->
+    <div id="messageModal">
+        <div class="modal-content">
+            <div class="modal-year" id="modalYear"></div>
+            <div class="modal-message" id="modalMessage"></div>
+            <button class="close-btn" onclick="closeModal()">OK</button>
+        </div>
+    </div>
+
+    <!-- Game Over Screen -->
+    <div id="gameOverScreen">
+        <div class="game-over-text">GAME OVER</div>
+        <button class="restart-btn" onclick="restartGame()">RETRY</button>
+    </div>
+
+    <script>
+        // Game Configuration
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+
+        // Set canvas size optimized for iPad Gen 10
+        const setCanvasSize = () => {
+            const maxWidth = window.innerWidth - 40;
+            const maxHeight = window.innerHeight - 40;
+            const aspectRatio = 16 / 9;
+
+            let width = maxWidth;
+            let height = width / aspectRatio;
+
+            if (height > maxHeight) {
+                height = maxHeight;
+                width = height * aspectRatio;
+            }
+
+            canvas.width = width;
+            canvas.height = height;
+        };
+
+        setCanvasSize();
+        window.addEventListener('resize', setCanvasSize);
+
+        // Game State
+        const game = {
+            gravity: 0.6,
+            friction: 0.8,
+            keys: {},
+            score: 0,
+            doorsUnlocked: new Set(),
+            gameRunning: true
+        };
+
+        // Messages for each year
+        const yearMessages = {
+            2021: "💝 2021 - Awal Perjalanan Kita\n\nTahun dimana semuanya dimulai. Setiap momen bersamamu adalah hadiah terindah yang pernah aku terima. Terima kasih sudah menjadi bagian dari hidupku, sayang! 💕",
+            2022: "💝 2022 - Tumbuh Bersama\n\nDi tahun ini kita belajar banyak hal bersama, tertawa bersama, dan tumbuh bersama. Setiap hari bersamamu adalah petualangan yang tak terlupakan! 🌟",
+            2023: "💝 2023 - Kenangan Manis\n\nTahun penuh kenangan indah yang akan selalu tersimpan di hatiku. Dari hal kecil hingga momen spesial, semuanya berharga karena bersamamu! 🎀",
+            2024: "💝 2024 - Cinta yang Semakin Kuat\n\nCinta kita semakin kuat setiap harinya. Terima kasih sudah selalu ada, mendukung, dan mencintaiku apa adanya. You're my everything! 💖",
+            2025: "💝 2025 - Hari Ini dan Selamanya\n\nDi tahun ini aku semakin yakin bahwa kamu adalah orang yang tepat untukku. Aku berjanji akan selalu menjaga dan mencintaimu! 💗",
+            2026: "💝 2026 - Masa Depan Kita\n\nIni baru permulaan dari perjalanan panjang kita. Aku tidak sabar untuk membuat lebih banyak kenangan indah bersamamu. I love you more than words can say! 💕✨"
+        };
+
+        // Player
+        const player = {
+            x: 100,
+            y: 0,
+            width: 50,
+            height: 50,
+            velocityX: 0,
+            velocityY: 0,
+            speed: 5,
+            jumpPower: 13,
+            onGround: false,
+            direction: 1 // 1 = right, -1 = left
+        };
+
+        // Platforms
+        const platforms = [
+            { x: 0, y: canvas.height - 80, width: canvas.width * 3, height: 80 } // Ground
+        ];
+
+        // Doors (6 doors for years 2021-2026)
+        const doors = [
+            { x: 400, y: canvas.height - 200, width: 100, height: 120, year: 2021, unlocked: false },
+            { x: 850, y: canvas.height - 200, width: 100, height: 120, year: 2022, unlocked: false },
+            { x: 1300, y: canvas.height - 300, width: 100, height: 120, year: 2023, unlocked: false },
+            { x: 1750, y: canvas.height - 200, width: 100, height: 120, year: 2024, unlocked: false },
+            { x: 2200, y: canvas.height - 300, width: 100, height: 120, year: 2025, unlocked: false },
+            { x: 2650, y: canvas.height - 200, width: 100, height: 120, year: 2026, unlocked: false }
+        ];
+
+        // Add platforms for elevated doors
+        platforms.push(
+            { x: 1250, y: canvas.height - 240, width: 250, height: 40 },
+            { x: 2150, y: canvas.height - 240, width: 250, height: 40 }
+        );
+
+        // Enemies (Turtles)
+        const enemies = [
+            { x: 600, y: canvas.height - 130, width: 50, height: 50, velocityX: 2, minX: 500, maxX: 900 },
+            { x: 1100, y: canvas.height - 130, width: 50, height: 50, velocityX: -2, minX: 1000, maxX: 1500 },
+            { x: 1950, y: canvas.height - 130, width: 50, height: 50, velocityX: 2, minX: 1850, maxX: 2250 },
+            { x: 2450, y: canvas.height - 130, width: 50, height: 50, velocityX: -2, minX: 2350, maxX: 2750 }
+        ];
+
+        // Camera
+        const camera = {
+            x: 0,
+            y: 0
+        };
+
+        // Load images
+        const images = {
+            background: new Image(),
+            player: new Image()
+        };
+
+        let imagesLoaded = 0;
+        const totalImages = 2;
+
+        const imageLoadHandler = () => {
+            imagesLoaded++;
+            if (imagesLoaded === totalImages) {
+                setTimeout(() => {
+                    document.getElementById('loadingScreen').classList.add('hidden');
+                }, 500);
+            }
+        };
+
+        images.background.onload = imageLoadHandler;
+        images.player.onload = imageLoadHandler;
+
+        // Set image sources
+        images.background.src = 'mario_background_1770996119802.png';
+        images.player.src = 'mario_character_1770996139194.png';
+
+        // Keyboard Controls
+        window.addEventListener('keydown', (e) => {
+            game.keys[e.key] = true;
+            if (e.key === ' ' || e.key === 'ArrowUp' || e.key === 'w') {
+                e.preventDefault();
+                if (player.onGround) {
+                    player.velocityY = -player.jumpPower;
+                }
+            }
+        });
+
+        window.addEventListener('keyup', (e) => {
+            game.keys[e.key] = false;
+        });
+
+        // Mobile Controls
+        let joystickActive = false;
+        let joystickDirection = { x: 0, y: 0 };
+
+        const joystick = document.getElementById('joystick');
+        const joystickInner = document.getElementById('joystickInner');
+        const jumpBtn = document.getElementById('jumpBtn');
+
+        const handleJoystickMove = (clientX, clientY) => {
+            const rect = joystick.getBoundingClientRect();
+            const centerX = rect.left + rect.width / 2;
+            const centerY = rect.top + rect.height / 2;
+
+            const deltaX = clientX - centerX;
+            const deltaY = clientY - centerY;
+            const distance = Math.min(35, Math.sqrt(deltaX * deltaX + deltaY * deltaY));
+            const angle = Math.atan2(deltaY, deltaX);
+
+            const x = Math.cos(angle) * distance;
+            const y = Math.sin(angle) * distance;
+
+            joystickInner.style.transform = `translate(calc(-50% + ${x}px), calc(-50% + ${y}px))`;
+
+            joystickDirection.x = x / 35;
+            joystickDirection.y = y / 35;
+        };
+
+        joystick.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            joystickActive = true;
+            handleJoystickMove(e.touches[0].clientX, e.touches[0].clientY);
+        });
+
+        joystick.addEventListener('touchmove', (e) => {
+            e.preventDefault();
+            if (joystickActive) {
+                handleJoystickMove(e.touches[0].clientX, e.touches[0].clientY);
+            }
+        });
+
+        joystick.addEventListener('touchend', (e) => {
+            e.preventDefault();
+            joystickActive = false;
+            joystickInner.style.transform = 'translate(-50%, -50%)';
+            joystickDirection = { x: 0, y: 0 };
+        });
+
+        jumpBtn.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            if (player.onGround) {
+                player.velocityY = -player.jumpPower;
+            }
+        });
+
+        // Modal Functions
+        function showMessage(year) {
+            const modal = document.getElementById('messageModal');
+            const modalYear = document.getElementById('modalYear');
+            const modalMessage = document.getElementById('modalMessage');
+
+            modalYear.textContent = year;
+            modalMessage.textContent = yearMessages[year];
+            modal.style.display = 'flex';
+            game.gameRunning = false;
+        }
+
+        function closeModal() {
+            document.getElementById('messageModal').style.display = 'none';
+            game.gameRunning = true;
+        }
+
+        function showGameOver() {
+            document.getElementById('gameOverScreen').style.display = 'flex';
+            game.gameRunning = false;
+        }
+
+        function restartGame() {
+            document.getElementById('gameOverScreen').style.display = 'none';
+            player.x = 100;
+            player.y = 0;
+            player.velocityX = 0;
+            player.velocityY = 0;
+            camera.x = 0;
+            game.gameRunning = true;
+        }
+
+        // Update Game
+        function update() {
+            if (!game.gameRunning) return;
+
+            // Player movement
+            if (game.keys['ArrowLeft'] || game.keys['a'] || joystickDirection.x < -0.3) {
+                player.velocityX = -player.speed;
+                player.direction = -1;
+            } else if (game.keys['ArrowRight'] || game.keys['d'] || joystickDirection.x > 0.3) {
+                player.velocityX = player.speed;
+                player.direction = 1;
+            } else {
+                player.velocityX *= game.friction;
+            }
+
+            // Apply gravity
+            player.velocityY += game.gravity;
+
+            // Update position
+            player.x += player.velocityX;
+            player.y += player.velocityY;
+
+            // Check platform collisions
+            player.onGround = false;
+            platforms.forEach(platform => {
+                if (player.x + player.width > platform.x &&
+                    player.x < platform.x + platform.width &&
+                    player.y + player.height > platform.y &&
+                    player.y + player.height < platform.y + platform.height &&
+                    player.velocityY > 0) {
+                    player.y = platform.y - player.height;
+                    player.velocityY = 0;
+                    player.onGround = true;
+                }
+            });
+
+            // Check door collisions
+            doors.forEach(door => {
+                if (player.x + player.width > door.x &&
+                    player.x < door.x + door.width &&
+                    player.y + player.height > door.y &&
+                    player.y < door.y + door.height &&
+                    !door.unlocked) {
+                    door.unlocked = true;
+                    game.doorsUnlocked.add(door.year);
+                    showMessage(door.year);
+                }
+            });
+
+            // Update enemies
+            enemies.forEach(enemy => {
+                enemy.x += enemy.velocityX;
+
+                if (enemy.x <= enemy.minX || enemy.x >= enemy.maxX) {
+                    enemy.velocityX *= -1;
+                }
+
+                // Check collision with player
+                if (player.x + player.width > enemy.x &&
+                    player.x < enemy.x + enemy.width &&
+                    player.y + player.height > enemy.y &&
+                    player.y < enemy.y + enemy.height) {
+                    showGameOver();
+                }
+            });
+
+            // Update camera
+            camera.x = player.x - canvas.width / 3;
+            camera.x = Math.max(0, Math.min(camera.x, platforms[0].width - canvas.width));
+
+            // Prevent player from going out of bounds
+            if (player.x < 0) player.x = 0;
+            if (player.x + player.width > platforms[0].width) {
+                player.x = platforms[0].width - player.width;
+            }
+        }
+
+        // Draw Game
+        function draw() {
+            // Clear canvas
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Save context
+            ctx.save();
+            ctx.translate(-camera.x, 0);
+
+            // Draw background
+            if (images.background.complete) {
+                const bgScale = canvas.height / images.background.height;
+                const bgWidth = images.background.width * bgScale;
+                const bgRepeat = Math.ceil((platforms[0].width + camera.x) / bgWidth) + 1;
+
+                for (let i = 0; i < bgRepeat; i++) {
+                    ctx.drawImage(images.background, i * bgWidth, 0, bgWidth, canvas.height);
+                }
+            }
+
+            // Draw platforms (Mario-style grass blocks)
+            platforms.forEach(platform => {
+                // Draw grass blocks
+                const blockSize = 40;
+                for (let x = platform.x; x < platform.x + platform.width; x += blockSize) {
+                    for (let y = platform.y; y < platform.y + platform.height; y += blockSize) {
+                        // Grass top
+                        if (y === platform.y) {
+                            ctx.fillStyle = '#7ccd7c';
+                            ctx.fillRect(x, y, blockSize, blockSize);
+                            ctx.strokeStyle = '#5a9a5a';
+                            ctx.lineWidth = 2;
+                            ctx.strokeRect(x, y, blockSize, blockSize);
+
+                            // Grass details
+                            ctx.fillStyle = '#5a9a5a';
+                            for (let i = 0; i < 3; i++) {
+                                ctx.fillRect(x + i * 12 + 4, y + 5, 6, 10);
+                            }
+                        } else {
+                            // Dirt blocks
+                            ctx.fillStyle = '#8b4513';
+                            ctx.fillRect(x, y, blockSize, blockSize);
+                            ctx.strokeStyle = '#654321';
+                            ctx.lineWidth = 2;
+                            ctx.strokeRect(x, y, blockSize, blockSize);
+                        }
+                    }
+                }
+            });
+
+            // Draw doors (Castle-style)
+            doors.forEach((door, index) => {
+                // Castle door background
+                ctx.fillStyle = '#8b8b8b';
+                ctx.fillRect(door.x, door.y, door.width, door.height);
+
+                // Door frame (stone)
+                ctx.strokeStyle = '#5a5a5a';
+                ctx.lineWidth = 5;
+                ctx.strokeRect(door.x, door.y, door.width, door.height);
+
+                // Wooden door
+                ctx.fillStyle = '#654321';
+                ctx.fillRect(door.x + 10, door.y + 10, door.width - 20, door.height - 20);
+
+                // Door planks
+                ctx.strokeStyle = '#4a3219';
+                ctx.lineWidth = 3;
+                for (let i = 0; i < 4; i++) {
+                    const plankY = door.y + 20 + i * 25;
+                    ctx.beginPath();
+                    ctx.moveTo(door.x + 15, plankY);
+                    ctx.lineTo(door.x + door.width - 15, plankY);
+                    ctx.stroke();
+                }
+
+                // Door handle
+                ctx.fillStyle = '#ffd700';
+                ctx.beginPath();
+                ctx.arc(door.x + door.width - 30, door.y + door.height / 2, 6, 0, Math.PI * 2);
+                ctx.fill();
+
+                // Year text
+                ctx.fillStyle = '#fff';
+                ctx.font = 'bold 20px Press Start 2P';
+                ctx.textAlign = 'center';
+                ctx.fillText(door.year.toString(), door.x + door.width / 2, door.y + door.height / 2);
+
+                // Unlocked indicator
+                if (door.unlocked) {
+                    ctx.fillStyle = '#ffd700';
+                    ctx.font = '30px Arial';
+                    ctx.fillText('★', door.x + door.width / 2, door.y - 20);
+                }
+            });
+
+            // Draw enemies (Koopa-style turtles)
+            enemies.forEach(enemy => {
+                // Shell
+                ctx.fillStyle = '#228B22';
+                ctx.beginPath();
+                ctx.ellipse(enemy.x + enemy.width / 2, enemy.y + enemy.height / 2,
+                    enemy.width / 2, enemy.height / 2.5, 0, 0, Math.PI * 2);
+                ctx.fill();
+
+                // Shell pattern
+                ctx.strokeStyle = '#006400';
+                ctx.lineWidth = 3;
+                ctx.stroke();
+
+                // Shell segments
+                ctx.strokeStyle = '#FFD700';
+                ctx.lineWidth = 2;
+                for (let i = 0; i < 3; i++) {
+                    ctx.beginPath();
+                    ctx.arc(enemy.x + enemy.width / 2, enemy.y + enemy.height / 2,
+                        (i + 1) * 8, 0, Math.PI * 2);
+                    ctx.stroke();
+                }
+
+                // Head
+                const headX = enemy.velocityX > 0 ? enemy.x + enemy.width - 5 : enemy.x + 5;
+                ctx.fillStyle = '#90EE90';
+                ctx.beginPath();
+                ctx.arc(headX, enemy.y + enemy.height / 2, 12, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.strokeStyle = '#006400';
+                ctx.lineWidth = 2;
+                ctx.stroke();
+
+                // Eyes
+                ctx.fillStyle = '#000';
+                ctx.beginPath();
+                ctx.arc(headX + (enemy.velocityX > 0 ? 3 : -3),
+                    enemy.y + enemy.height / 2 - 3, 2, 0, Math.PI * 2);
+                ctx.fill();
+
+                // Feet
+                ctx.fillStyle = '#90EE90';
+                const footY = enemy.y + enemy.height - 5;
+                ctx.fillRect(enemy.x + 10, footY, 10, 8);
+                ctx.fillRect(enemy.x + enemy.width - 20, footY, 10, 8);
+            });
+
+            // Draw player (Mario character)
+            if (images.player.complete) {
+                ctx.save();
+                if (player.direction === -1) {
+                    ctx.scale(-1, 1);
+                    ctx.drawImage(images.player, -player.x - player.width, player.y, player.width, player.height);
+                } else {
+                    ctx.drawImage(images.player, player.x, player.y, player.width, player.height);
+                }
+                ctx.restore();
+            } else {
+                // Fallback if image not loaded
+                ctx.fillStyle = '#e52521';
+                ctx.fillRect(player.x, player.y, player.width, player.height);
+            }
+
+            // Restore context
+            ctx.restore();
+
+            // Draw UI
+            ctx.fillStyle = '#fff';
+            ctx.font = 'bold 16px Press Start 2P';
+            ctx.textAlign = 'left';
+            ctx.strokeStyle = '#000';
+            ctx.lineWidth = 3;
+            ctx.strokeText(`DOORS: ${game.doorsUnlocked.size}/6`, 20, 30);
+            ctx.fillText(`DOORS: ${game.doorsUnlocked.size}/6`, 20, 30);
+        }
+
+        // Game Loop
+        function gameLoop() {
+            update();
+            draw();
+            requestAnimationFrame(gameLoop);
+        }
+
+        // Initialize
+        gameLoop();
+    </script>
+</body>
+
+</html>
