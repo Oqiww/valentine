@@ -286,22 +286,28 @@
 
         /* Mobile Controls */
         .mobile-controls {
-            display: none;
+            display: flex;
             position: fixed;
             bottom: 30px;
             width: 100%;
             justify-content: space-between;
             padding: 0 30px;
             z-index: 100;
+            pointer-events: none;
+        }
+
+        .mobile-controls>* {
+            pointer-events: auto;
         }
 
         .joystick {
             width: 120px;
             height: 120px;
-            background: rgba(0, 0, 0, 0.5);
-            border: 3px solid #fff;
+            background: rgba(0, 0, 0, 0.6);
+            border: 4px solid #fff;
             border-radius: 50%;
             position: relative;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
         }
 
         .joystick-inner {
@@ -314,13 +320,14 @@
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.3);
         }
 
         .jump-btn {
             width: 100px;
             height: 100px;
             background: #ffd700;
-            border: 3px solid #000;
+            border: 4px solid #000;
             border-radius: 50%;
             color: #000;
             font-family: 'Press Start 2P', cursive;
@@ -328,24 +335,26 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            box-shadow: 0 5px 0 #b8860b;
+            box-shadow: 0 5px 0 #b8860b, 0 8px 15px rgba(0, 0, 0, 0.5);
             user-select: none;
             -webkit-tap-highlight-color: transparent;
         }
 
         .jump-btn:active {
             transform: translateY(5px);
-            box-shadow: 0 0 0 #b8860b;
+            box-shadow: 0 0 0 #b8860b, 0 3px 10px rgba(0, 0, 0, 0.5);
         }
 
         @media (max-width: 768px) {
-            .mobile-controls {
-                display: flex;
-            }
-
             #controlsInfo {
                 font-size: 8px;
                 padding: 10px 20px;
+            }
+        }
+
+        @media (min-width: 1024px) {
+            .mobile-controls {
+                display: none;
             }
         }
 
@@ -495,12 +504,12 @@
 
         // Messages for each year
         const yearMessages = {
-            2021: "💝 2021 - Awal Perjalanan Kita\n\nTahun dimana semuanya dimulai. Setiap momen bersamamu adalah hadiah terindah yang pernah aku terima. Terima kasih sudah menjadi bagian dari hidupku, sayang! 💕",
-            2022: "💝 2022 - Tumbuh Bersama\n\nDi tahun ini kita belajar banyak hal bersama, tertawa bersama, dan tumbuh bersama. Setiap hari bersamamu adalah petualangan yang tak terlupakan! 🌟",
-            2023: "💝 2023 - Kenangan Manis\n\nTahun penuh kenangan indah yang akan selalu tersimpan di hatiku. Dari hal kecil hingga momen spesial, semuanya berharga karena bersamamu! 🎀",
-            2024: "💝 2024 - Cinta yang Semakin Kuat\n\nCinta kita semakin kuat setiap harinya. Terima kasih sudah selalu ada, mendukung, dan mencintaiku apa adanya. You're my everything! 💖",
-            2025: "💝 2025 - Hari Ini dan Selamanya\n\nDi tahun ini aku semakin yakin bahwa kamu adalah orang yang tepat untukku. Aku berjanji akan selalu menjaga dan mencintaimu! 💗",
-            2026: "💝 2026 - Masa Depan Kita\n\nIni baru permulaan dari perjalanan panjang kita. Aku tidak sabar untuk membuat lebih banyak kenangan indah bersamamu. I love you more than words can say! 💕✨"
+            2021: "This was my first time i found out that ternyata ada orang yang namanya kireina, the first time i had a photo of you in my gallery, the first time i texted you on instagram to change your name lolz, and the first time i fell for you",
+            2022: "I think this was the hardest part of our relationship, to be honest. It was probably hard for you too, karena kita harus adaptasi banyak hal before and after being in a relationship",
+            2023: "This year was our lovey dovey moment, we wen on a trip dari sekolah wwkwkwk, and i think it was also my first time meeting your dad buat jemput kamu sebelum jalan, and i'm glad that my presence is known by your family hehe",
+            2024: "Inten, sekolah, cabut, ggp, rumah keira. it was probably the most fun year with you, chasing our dream uni together, studying late nights, tambahan, dan lain lain. eventho, we didn't end up in our dream uni, but i'm glad that we're at the same city together plus having 'cewe gua anak unpad' is the most proudest thing i have hehe",
+            2025: "This was also our haarrrrrrrrrrrrrrdest part, i hurted you a lot, i was selfish, and im truly sorry for that. thank you for always staying by my side, thankyou for not giving up on me, thankyou for forgiving me, banyak banget kata maaf dan terima kasih yang aku ucapin di tahun ini, love you",
+            2026: "We haven’t reached the finish line yet, but i'm glad that we're still together. Listening to any hindia songs make me feel sad because i feel like i wanna pause time biar kita bisa teriak-teriak di konser having fun without thinking about anything else, berduaan, and listening to sal priadi songs make me feel like doa mungking ya? biar sabar kita eventually bakal terbayar, especially 'Kita usahakan rumah itu' bikin aku kebayang-bayang nanti kita kalo udah nikah rumah kita gimana, anak kita gimana. i do hope that you're my end game. i do hope that kamu akan selalu jadi partner nonton baskara bareng aku sampe mereka bubar. i know it's a little bit early but i do hope that beberapa tahun lagi kita bakal punya mobil masing-masing, i do hope that beberapa tahun lagi kita udah punya rumah marmer ato kayu atau apapun itu. i do hope that beberapa tahun lagi kita bisa santai-santai sambil main sama kucing munchkin pertama kita. semoga kedepannya kita bisa saling minta maaf lebih dan saling memaaafkan lebih lagi. happy valentine, aku sayang kamu sekali. raraku"
         };
 
         // Player
@@ -514,9 +523,7 @@
             speed: 5,
             jumpPower: 13,
             onGround: false,
-            direction: 1, // 1 = right, -1 = left
-            walkFrame: 0,
-            walkTimer: 0
+            direction: 1 // 1 = right, -1 = left
         };
 
         // Platforms
@@ -725,21 +732,11 @@
             if (game.keys['ArrowLeft'] || game.keys['a'] || joystickDirection.x < -0.3) {
                 player.velocityX = -player.speed;
                 player.direction = -1;
-                player.walkTimer++;
             } else if (game.keys['ArrowRight'] || game.keys['d'] || joystickDirection.x > 0.3) {
                 player.velocityX = player.speed;
                 player.direction = 1;
-                player.walkTimer++;
             } else {
                 player.velocityX *= game.friction;
-                player.walkTimer = 0;
-                player.walkFrame = 0;
-            }
-
-            // Update walk animation
-            if (player.walkTimer > 8) {
-                player.walkFrame = (player.walkFrame + 1) % 2;
-                player.walkTimer = 0;
             }
 
             // Apply gravity
@@ -946,16 +943,11 @@
             // Draw player (Mario character)
             if (images.player.complete) {
                 ctx.save();
-
-                // Walking animation - slight bounce
-                const bounceOffset = Math.abs(player.velocityX) > 0.5 && player.onGround ?
-                    Math.sin(player.walkFrame * Math.PI) * 3 : 0;
-
                 if (player.direction === -1) {
                     ctx.scale(-1, 1);
-                    ctx.drawImage(images.player, -player.x - player.width, player.y - bounceOffset, player.width, player.height);
+                    ctx.drawImage(images.player, -player.x - player.width, player.y, player.width, player.height);
                 } else {
-                    ctx.drawImage(images.player, player.x, player.y - bounceOffset, player.width, player.height);
+                    ctx.drawImage(images.player, player.x, player.y, player.width, player.height);
                 }
                 ctx.restore();
             } else {
